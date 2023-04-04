@@ -103,6 +103,12 @@ def parse_args(config: GptCliConfig):
         default=False,
         help="If specified, will not stream the response to standard output. This is useful if you want to use the response in a script. Ignored when the --prompt option is not specified.",
     )
+    parser.add_argument(
+        '-l',
+        '--list_assistants',
+        action='store_true',
+        default=None
+    )
 
     return parser.parse_args()
 
@@ -121,6 +127,15 @@ def main():
         read_yaml_config(config_path) if os.path.isfile(config_path) else GptCliConfig()
     )
     args = parse_args(config)
+
+    if args.list_assistants is not None:
+        assistants = config.assistants
+        for name in assistants:
+            print('Assistant name:', name)
+            print('Prompt:')
+            [print(message.get('content', 'no message')) for message in assistants[name].get('messages', {})]
+            print()
+        sys.exit()
 
     if args.log_file is not None:
         logging.basicConfig(
